@@ -74,7 +74,13 @@ void put_ipc_ns(struct ipc_namespace *ns)
 }
 
 // struct ipc_namespace init_ipc_ns;
-// static struct ipc_namespace *init_ipc_ns_ptr = NULL;
+typedef struct ipc_namespace *init_ipc_ns_ptr_t;
+static init_ipc_ns_ptr_t init_ipc_ns_ptr = NULL;
+init_ipc_ns_ptr_t get_init_ipc_ns_ptr(void)
+{
+    if (!init_ipc_ns_ptr) init_ipc_ns_ptr = (init_ipc_ns_ptr_t) kallsyms_lookup_name("init_ipc_ns");
+    return init_ipc_ns_ptr;
+}
 
 typedef int (*task_work_add_ptr_t)(struct task_struct *task, struct callback_head *twork, bool notify);
 static task_work_add_ptr_t task_work_add_ptr = NULL;

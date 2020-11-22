@@ -121,7 +121,7 @@ static uint32_t binder_debug_mask = BINDER_DEBUG_USER_ERROR |
 	BINDER_DEBUG_FAILED_TRANSACTION | BINDER_DEBUG_DEAD_TRANSACTION;
 module_param_named(debug_mask, binder_debug_mask, uint, 0644);
 
-char *binder_devices_param = CONFIG_ANDROID_BINDER_DEVICES;
+char *binder_devices_param = CONFIG_ANDROID_BINDER_DEVICES_HACKED; // avoid system macro redefinition
 module_param_named(devices, binder_devices_param, charp, 0444);
 
 static DECLARE_WAIT_QUEUE_HEAD(binder_user_error_wait);
@@ -5253,7 +5253,6 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	}
 	hlist_add_head(&proc->proc_node, &binder_procs);
 	mutex_unlock(&binder_procs_lock);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) // HACKED
 	if (binder_debugfs_dir_entry_proc && !existing_pid) {
 		char strbuf[11];
 
@@ -5269,7 +5268,6 @@ static int binder_open(struct inode *nodp, struct file *filp)
 			(void *)(unsigned long)proc->pid,
 			&proc_fops);
 	}
-#endif
 	if (binder_binderfs_dir_entry_proc && !existing_pid) {
 		char strbuf[11];
 		struct dentry *binderfs_entry;
@@ -6114,7 +6112,6 @@ static int __init binder_init(void)
 
 	atomic_set(&binder_transaction_log.cur, ~0U);
 	atomic_set(&binder_transaction_log_failed.cur, ~0U);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0) // HACKED
 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
 	if (binder_debugfs_dir_entry_root)
 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
@@ -6147,7 +6144,6 @@ static int __init binder_init(void)
 				    &binder_transaction_log_failed,
 				    &binder_transaction_log_fops);
 	}
-#endif
 	if (!IS_ENABLED(CONFIG_ANDROID_BINDERFS) &&
 	    strcmp(binder_devices_param, "") != 0) {
 		/*
@@ -6190,13 +6186,13 @@ err_alloc_device_names_failed:
 }
 
 // HACKED
-extern void __exit exit_binderfs(void);
+extern void __exit binderfs_exit(void);
 static void __exit binder_exit(void)
 {
     struct binder_device *device;
     struct hlist_node *tmp;
 
-    exit_binderfs();
+    binderfs_exit();
 
     hlist_for_each_entry_safe(device, tmp, &binder_devices, hlist) {
                 misc_deregister(&device->miscdev);

@@ -1,0 +1,7 @@
+bases:
+- ../../base
+ 
+images:
+- name: YOUR_NODE_OS
+  newName: amazonlinux
+  newTag: "2"

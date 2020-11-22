@@ -1,4 +1,5 @@
-// build: gcc -I../binderfs ./test.c
+// build: gcc -I../binder ./test.c
+// check https://brauner.github.io/2019/01/09/android-binderfs.html for more details
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>

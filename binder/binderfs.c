@@ -36,11 +36,6 @@
 
 #include "binder_internal.h"
 
-// HACKED
-#ifdef CONFIG_IPC_NS
-#undef CONFIG_IPC_NS
-#endif
-
 #define FIRST_INODE 1
 #define SECOND_INODE 2
 #define INODE_OFFSET 3
@@ -49,6 +44,7 @@
 /* Ensure that the initial ipc namespace always has devices available. */
 #define BINDERFS_MAX_MINOR_CAPPED (BINDERFS_MAX_MINOR - 4)
 
+extern struct ipc_namespace* get_init_ipc_ns_ptr(void);
 static dev_t binderfs_dev;
 static DEFINE_MUTEX(binderfs_minors_mutex);
 static DEFINE_IDA(binderfs_minors);
@@ -114,7 +110,7 @@ static int binderfs_binder_device_create(struct inode *ref_inode,
 	struct super_block *sb = ref_inode->i_sb;
 	struct binderfs_info *info = sb->s_fs_info;
 #if defined(CONFIG_IPC_NS)
-	bool use_reserve = (info->ipc_ns == &init_ipc_ns);
+	bool use_reserve = (info->ipc_ns == get_init_ipc_ns_ptr());
 #else
 	bool use_reserve = true;
 #endif
@@ -413,7 +409,7 @@ static int binderfs_binder_ctl_create(struct super_block *sb)
 	struct dentry *root = sb->s_root;
 	struct binderfs_info *info = sb->s_fs_info;
 #if defined(CONFIG_IPC_NS)
-	bool use_reserve = (info->ipc_ns == &init_ipc_ns);
+	bool use_reserve = (info->ipc_ns == get_init_ipc_ns_ptr());
 #else
 	bool use_reserve = true;
 #endif
@@ -754,9 +750,8 @@ static void binderfs_kill_super(struct super_block *sb)
 
 	kill_litter_super(sb);
 
-    // HACKED (?)
-	// if (info && info->ipc_ns)
-	//	put_ipc_ns(info->ipc_ns);
+	if (info && info->ipc_ns)
+		put_ipc_ns(info->ipc_ns);
 
 	kfree(info);
 }
@@ -800,7 +795,7 @@ int __init init_binderfs(void)
 }
 
 // HACKED
-void __exit exit_binderfs(void)
+void __exit binderfs_exit(void)
 {
 	unregister_filesystem(&binder_fs_type);
 	unregister_chrdev_region(binderfs_dev, BINDERFS_MAX_MINOR);

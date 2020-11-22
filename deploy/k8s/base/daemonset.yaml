@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: redroid-modules
+spec:
+  selector:
+    matchLabels:
+      app: redroid-modules
+  template:
+    metadata:
+      labels:
+        app: redroid-modules
+    spec:
+      initContainers:
+      - name: init
+        image: YOUR_NODE_OS
+        securityContext:
+          capabilities:
+            add:
+            - CAP_SYS_MODULE
+        command:
+        - "/bin/bash"
+        args:
+        - "-c"
+        - "`curl -s https://raw.githubusercontent.com/remote-android/redroid-modules/master/deploy/build.sh`"
+      containers:
+      - name: pause
+        image: rancher/pause:3.2
