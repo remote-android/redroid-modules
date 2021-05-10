@@ -1,7 +1,0 @@
-bases:
-- ../../base
- 
-images:
-- name: YOUR_NODE_OS
-  newName: ubuntu
-  newTag: "18.04"

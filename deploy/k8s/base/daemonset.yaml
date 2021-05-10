@@ -22,7 +22,7 @@ spec:
         - "/bin/bash"
         args:
         - "-c"
-        - "`curl -s https://raw.githubusercontent.com/remote-android/redroid-modules/master/deploy/build.sh`"
+        - "`curl -s <link>`"
       containers:
       - name: pause
         image: rancher/pause:3.2

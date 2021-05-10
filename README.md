@@ -2,11 +2,11 @@ English | [简体中文](./README_zh.md)
 # ReDroid Kernel Modules
 This repository contains the kernel modules necessary to run *ReDroid* instances.
 
-Currently, only **4.14+** kernel is supported. Many Linux distributions already meet 
-this requirement (Ubuntu 16.04+, AmazonLinux 2, CentOS 8+ etc.). If you are using a 
+Currently, **4.14+** kernel is supported. Many Linux distributions already meet 
+this requirement (Ubuntu 16.04+, AmazonLinux 2, Alibaba Cloud Linux 2 etc.). If you are using
 customized kernel, make sure the corresponding kernel headers are present in your system.
 
-Suggest use *non production* machines to try these modules.
+**for kernel 5.8+, please install `binderfs` / `ashmem` either by `modprobe` or edit build config**
 
 ## Build & Deploy
 - [Manual](#manual)
@@ -19,15 +19,23 @@ Suggest use *non production* machines to try these modules.
 
 ## Manual
 ```bash
-# single command
-sudo bash -c "`curl -s https://raw.githubusercontent.com/remote-android/redroid-modules/master/deploy/build.sh`"
-
-# Ubuntu / Debian etc.
+# Ubuntu 16.04+
 sudo apt-get install -y git kmod make gcc linux-headers-`uname -r`
 sudo make # build kernel modules
 sudo make install # build and install *unsigned* kernel modules
 
-# AmazonLinux2 / CentOS / RHEL
+# Ubuntu 21.04+
+sudo modprobe ashmem_linux
+sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
+
+# AmazonLinux2
+git checkout origin/amazonlinux2
+sudo yum install git kmod make "kernel-devel-uname-r == `uname -r`"
+sudo make # build kernel modules
+sudo make install # build and install *unsigned* kernel modules
+
+# Alibaba Cloud Linux 2
+git checkout origin/alibabalinux2
 sudo yum install git kmod make "kernel-devel-uname-r == `uname -r`"
 sudo make # build kernel modules
 sudo make install # build and install *unsigned* kernel modules
@@ -39,10 +47,10 @@ lsmod | grep -e ashmem_linux -e binder_linux
 # ashmem_linux           16384  23
 
 # we can also check like this
-cat /proc/filesystems | grep binder # output should like: nodev	binder
-cat /proc/misc | grep ashmem # output should like: 56 ashmem
+grep binder /proc/filesystems # output should like: nodev	binder
+grep ashmem /proc/misc # output should like: 56 ashmem
 ```
-Please refer the related docs if you want to sign these kernel modules.
+*Please refer the related docs if you want to sign these kernel modules.*
 
 ## DKMS
 DKMS can help to automatically build and deploy kernel modules if kernel upgraded.
@@ -50,7 +58,7 @@ You need to have `dkms` and linux-headers on your system. You can install them b
 `sudo apt install dkms` or `sudo yum install dkms`.
 
 Package name for linux-headers varies on different distributions, e.g.
-`linux-headers-generic` (Ubuntu), `kernel-devel` (CentOS, AmazonLinux2)
+`linux-headers-generic` (Ubuntu), `kernel-devel` (AmazonLinux2)
 
 ```bash
 # prepare config files
@@ -67,11 +75,13 @@ dkms install redroid-binder/1
 ```
 
 ## Package Manager
-TODO, stay tuned :)
+TODO
 
 ## Docker
+TODO
+it's possible to make a script, add install these kernel moduels by docker
 ```bash
-docker run --rm --cap-add CAP_SYS_MODULE --entrypoint /bin/bash NODE_OS -c "`curl -s https://raw.githubusercontent.com/remote-android/redroid-modules/master/deploy/build.sh`"
+docker run --rm --cap-add CAP_SYS_MODULE --entrypoint /bin/bash NODE_OS -c "`curl -s <link>`"
 # for example, if you are running under ubuntu 18.04, please change NODE_OS to *ubunut:18.04*
 ```
 
