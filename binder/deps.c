@@ -140,5 +140,16 @@ out_unlock:
 	*res = NULL;
 	return -ENOENT;
 }
-#endif
+#else
+typedef int (*__close_fd_get_file_ptr_t)(unsigned int fd, struct file **res);
+static __close_fd_get_file_ptr_t __close_fd_get_file_ptr = NULL;
+int __close_fd_get_file(unsigned int fd, struct file **res)
+{
+    if (!__close_fd_get_file_ptr)
+        __close_fd_get_file_ptr = (__close_fd_get_file_ptr_t) kallsyms_lookup_name("__close_fd_get_file");
+
+    return __close_fd_get_file_ptr(fd, res);
+
+}
+#endif // LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 1)
 
