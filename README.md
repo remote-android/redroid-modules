@@ -40,6 +40,12 @@ sudo yum install git kmod make "kernel-devel-uname-r == `uname -r`"
 sudo make # build kernel modules
 sudo make install # build and install *unsigned* kernel modules
 
+# Alibaba Cloud Linux 3
+git checkout origin/alibabalinux3
+sudo yum install git kmod make "kernel-devel-uname-r == `uname -r`"
+sudo make # build kernel modules
+sudo make install # build and install *unsigned* kernel modules
+
 # check modules status
 lsmod | grep -e ashmem_linux -e binder_linux
 # example output:
