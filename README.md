@@ -6,7 +6,7 @@ Currently, **4.14+** kernel is supported. Many Linux distributions already meet
 this requirement (Ubuntu 16.04+, AmazonLinux 2, Alibaba Cloud Linux 2 etc.). If you are using
 customized kernel, make sure the corresponding kernel headers are present in your system.
 
-**for kernel 5.8+, please install `binderfs` / `ashmem` either by `modprobe` or edit build config**
+**for kernel >= 5.7, please install either by building customized kernel or `modprobe` (Ubuntu etc.)**
 
 ## Build & Deploy
 - [Manual](#manual)

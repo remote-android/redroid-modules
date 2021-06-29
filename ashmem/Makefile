@@ -1,9 +1,6 @@
-ifneq ($(KERNELRELEASE),)
 ccflags-y += -I$(src)
 obj-m := ashmem_linux.o
 ashmem_linux-y := ashmem.o deps.o
-
-else
 
 KDIR ?= /lib/modules/`uname -r`/build
 
@@ -22,4 +19,3 @@ uninstall:
 clean:
 	$(MAKE) -C $(KDIR) M=$$PWD clean
 
-endif
