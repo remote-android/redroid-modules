@@ -82,9 +82,9 @@ init_ipc_ns_ptr_t get_init_ipc_ns_ptr(void)
     return init_ipc_ns_ptr;
 }
 
-typedef int (*task_work_add_ptr_t)(struct task_struct *task, struct callback_head *twork, bool notify);
+typedef int (*task_work_add_ptr_t)(struct task_struct *task, struct callback_head *twork, int notify);
 static task_work_add_ptr_t task_work_add_ptr = NULL;
-int task_work_add(struct task_struct *task, struct callback_head *twork, bool notify)
+int task_work_add(struct task_struct *task, struct callback_head *twork, int notify)
 {
     if (!task_work_add_ptr)
         task_work_add_ptr = (task_work_add_ptr_t) kallsyms_lookup_name("task_work_add");
