@@ -11,20 +11,18 @@ customized kernel, make sure the corresponding kernel headers are present in you
 ## Build & Deploy
 - [Manual](#manual)
 - [DKMS](#dkms)
-- [Package Manager](#package-manager)
 - [Docker](#docker)
 - [K8S](#k8s)
 - [Custom Kernel](#custom-kernel)
-- [Kata Runtime / MicroVM](#kata-runtime)
 
 ## Manual
 ```bash
-# Ubuntu 16.04+
+# Ubuntu 16.04 / 18.04 / 20.04
 sudo apt-get install -y git kmod make gcc linux-headers-`uname -r`
 sudo make # build kernel modules
 sudo make install # build and install *unsigned* kernel modules
 
-# Ubuntu 21.04+
+# Ubuntu 20.04+ (kernel 5.0+)
 sudo modprobe ashmem_linux
 sudo modprobe binder_linux devices=binder,hwbinder,vndbinder
 
@@ -45,6 +43,11 @@ git checkout origin/alibabalinux3
 sudo yum install git kmod make "kernel-devel-uname-r == `uname -r`"
 sudo make # build kernel modules
 sudo make install # build and install *unsigned* kernel modules
+
+# openEuler 20.03 / kernel 4.19
+git checkout origin/openeuler2003
+sudo yum install gcc kernel-devel
+sudo KDIR=/usr/src/kernels/<VER> make install
 
 # check modules status
 lsmod | grep -e ashmem_linux -e binder_linux
@@ -80,12 +83,8 @@ dkms install redroid-ashmem/1
 dkms install redroid-binder/1
 ```
 
-## Package Manager
-TODO
-
 ## Docker
-TODO
-it's possible to make a script, add install these kernel moduels by docker
+It's possible to make a script, add install these kernel moduels by docker
 ```bash
 docker run --rm --cap-add CAP_SYS_MODULE --entrypoint /bin/bash NODE_OS -c "`curl -s <link>`"
 # for example, if you are running under ubuntu 18.04, please change NODE_OS to *ubunut:18.04*
@@ -98,9 +97,4 @@ then run `kubectl apply -k <YOUR_OVERLAY_PATH>`
 ## Custom Kernel
 If use custom kernel (5.0+), you can enable `binderfs` and `ashmem` configs; So the kernel modules in this repo 
 are not needed any more.
-
-## Kata Runtime
-Enable `binderfs` and `ashmem` in 5.0+ kernel.
-
-Check out https://github.com/kata-containers/packaging/tree/master/kernel
 
