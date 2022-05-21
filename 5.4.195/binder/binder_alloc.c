@@ -38,8 +38,10 @@ enum {
 };
 static uint32_t binder_alloc_debug_mask = BINDER_DEBUG_USER_ERROR;
 
+#ifndef REDROID
 module_param_named(debug_mask, binder_alloc_debug_mask,
 		   uint, 0644);
+#endif
 
 #define binder_alloc_debug(mask, x...) \
 	do { \
@@ -1037,6 +1039,13 @@ int binder_alloc_shrinker_init(void)
 	return ret;
 }
 
+#ifdef REDROID
+void binder_alloc_shrinker_exit(void)
+{
+	unregister_shrinker(&binder_shrinker);
+	list_lru_destroy(&binder_alloc_lru);
+}
+#endif
 /**
  * check_buffer() - verify that buffer/offset is safe to access
  * @alloc: binder_alloc for this proc

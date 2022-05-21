@@ -31,8 +31,8 @@
 #include <linux/user_namespace.h>
 #include <linux/xarray.h>
 #include <uapi/asm-generic/errno-base.h>
-#include <uapi/linux/android/binder.h>
-#include <uapi/linux/android/binderfs.h>
+#include "uapi/linux/android/binder.h"
+#include "uapi/linux/android/binderfs.h"
 
 #include "binder_internal.h"
 
@@ -109,7 +109,7 @@ static int binderfs_binder_device_create(struct inode *ref_inode,
 	struct super_block *sb = ref_inode->i_sb;
 	struct binderfs_info *info = sb->s_fs_info;
 #if defined(CONFIG_IPC_NS)
-	bool use_reserve = (info->ipc_ns == &init_ipc_ns);
+	bool use_reserve = (info->ipc_ns == get_init_ipc_ns_ptr());
 #else
 	bool use_reserve = true;
 #endif
@@ -408,7 +408,7 @@ static int binderfs_binder_ctl_create(struct super_block *sb)
 	struct dentry *root = sb->s_root;
 	struct binderfs_info *info = sb->s_fs_info;
 #if defined(CONFIG_IPC_NS)
-	bool use_reserve = (info->ipc_ns == &init_ipc_ns);
+	bool use_reserve = (info->ipc_ns == get_init_ipc_ns_ptr());
 #else
 	bool use_reserve = true;
 #endif
@@ -792,3 +792,11 @@ int __init init_binderfs(void)
 
 	return ret;
 }
+
+#ifdef REDROID
+void __exit binderfs_exit(void)
+{
+	unregister_filesystem(&binder_fs_type);
+	unregister_chrdev_region(binderfs_dev, BINDERFS_MAX_MINOR);
+}
+#endif

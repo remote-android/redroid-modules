@@ -7,7 +7,7 @@
 #ifndef _UAPI_LINUX_BINDERFS_H
 #define _UAPI_LINUX_BINDERFS_H
 
-#include <linux/android/binder.h>
+#include "uapi/linux/android/binder.h"
 #include <linux/types.h>
 #include <linux/ioctl.h>
 

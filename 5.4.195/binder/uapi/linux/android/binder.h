@@ -23,6 +23,9 @@
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
+#ifdef REDROID
+#include "binder_hack.h"
+#endif
 
 #define B_PACK_CHARS(c1, c2, c3, c4) \
 	((((c1)<<24)) | (((c2)<<16)) | (((c3)<<8)) | (c4))

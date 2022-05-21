@@ -13,7 +13,7 @@
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
 #include <linux/list_lru.h>
-#include <uapi/linux/android/binder.h>
+#include "uapi/linux/android/binder.h"
 
 extern struct list_lru binder_alloc_lru;
 struct binder_transaction;

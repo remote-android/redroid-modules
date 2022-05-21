@@ -66,14 +66,34 @@
 #include <linux/syscalls.h>
 #include <linux/task_work.h>
 
-#include <uapi/linux/android/binder.h>
-#include <uapi/linux/android/binderfs.h>
+#include "uapi/linux/android/binder.h"
+#include "uapi/linux/android/binderfs.h"
 
 #include <asm/cacheflush.h>
 
 #include "binder_alloc.h"
 #include "binder_internal.h"
 #include "binder_trace.h"
+
+#ifdef REDROID
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 165) || \
+        (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0) && \
+        LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 85))
+
+static inline void __wake_up_pollfree(struct wait_queue_head *wq_head)
+{
+        __wake_up(wq_head, TASK_NORMAL, 0, poll_to_key(EPOLLHUP | POLLFREE));
+        /* POLLFREE must have cleared the queue. */
+        WARN_ON_ONCE(waitqueue_active(wq_head));
+}
+
+static inline void wake_up_pollfree(struct wait_queue_head *wq_head)
+{
+        if (waitqueue_active(wq_head))
+                __wake_up_pollfree(wq_head);
+}
+#endif
+#endif // ifdef REDROID
 
 static HLIST_HEAD(binder_deferred_list);
 static DEFINE_MUTEX(binder_deferred_lock);
@@ -6203,7 +6223,29 @@ err_alloc_device_names_failed:
 	return ret;
 }
 
+#ifdef REDROID
+static void __exit binder_exit(void)
+{
+	struct binder_device *device;
+	struct hlist_node *tmp;
+
+	binderfs_exit();
+
+	hlist_for_each_entry_safe(device, tmp, &binder_devices, hlist) {
+		misc_deregister(&device->miscdev);
+		hlist_del(&device->hlist);
+		kfree(device);
+	}
+
+	debugfs_remove_recursive(binder_debugfs_dir_entry_root);
+
+	binder_alloc_shrinker_exit();
+}
+module_init(binder_init);
+module_exit(binder_exit);
+#else
 device_initcall(binder_init);
+#endif
 
 #define CREATE_TRACE_POINTS
 #include "binder_trace.h"

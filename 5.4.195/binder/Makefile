@@ -1,6 +1,21 @@
-# SPDX-License-Identifier: GPL-2.0-only
-ccflags-y += -I$(src)			# needed for trace events
+ccflags-y = -I$(src) -DREDROID -DCONFIG_ANDROID_BINDERFS
+obj-m := binder_linux.o
+binder_linux-y := binderfs.o binder.o binder_alloc.o idr.o deps.o
 
-obj-$(CONFIG_ANDROID_BINDERFS)		+= binderfs.o
-obj-$(CONFIG_ANDROID_BINDER_IPC)	+= binder.o binder_alloc.o
-obj-$(CONFIG_ANDROID_BINDER_IPC_SELFTEST) += binder_alloc_selftest.o
+KDIR ?= /lib/modules/`uname -r`/build
+
+all:
+	$(MAKE) -C $(KDIR) M=$$PWD
+
+install: all
+	insmod binder_linux.ko
+
+modules_install:
+	$(MAKE) -C $(KDIR) M=$$PWD modules_install
+
+uninstall:
+	rmmod binder_linux
+
+clean:
+	$(MAKE) -C $(KDIR) M=$$PWD clean
+	rm *.o.*
